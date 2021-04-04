@@ -12,6 +12,22 @@ from core.helpers import create_error_response
 from .serializers import PersonSerializer
 
 
+class person(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, person_id, format=None):
+        person = Person.objects.filter(user=request.user, id=person_id).first()
+
+        if person is None:
+            return create_error_response('invalid_user')
+
+        person.delete()
+
+        return Response({
+        }, status=status.HTTP_200_OK)
+
+
 class persons(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
@@ -19,41 +35,22 @@ class persons(APIView):
     def get(self, request, format=None):
         persons = Person.objects.filter(user=request.user)
 
-        serializer = PersonSerializer(data=persons, many=True)
+        serializer = PersonSerializer(instance=persons, many=True)
 
         return Response({
-            'persons': persons,
+            'persons': serializer.data,
         }, status=status.HTTP_200_OK)
 
-    # Add a new User (or an existing User) in the current playgroup
-    # def post(self, request, playgroup_id, format=None):
-        # playgroup = fetch_playgroup(
-        #     id=playgroup_id,
-        #     playgroupplayer__player=request.user,
-        #     playgroupplayer__player_role__name='admin',
-        # )
-        # if playgroup is None:
-        #     return create_error_response('invalid_playgroup')
+    def post(self, request, format=None):
 
-        # serializer = AchievementSerializer(data=request.data)
-        # print(request.data)
-        # if serializer.is_valid():
-        #     achievement = serializer.save(author=request.user)
+        serializer = PersonSerializer(data=request.data)
+        if serializer.is_valid():
+            person = serializer.save(user=request.user, balance=0)
 
-        #     # Add the achievement to the playgroup
-        #     playgroup_achievement = PlaygroupAchievement(
-        #         playgroup=playgroup,
-        #         achievement=achievement,
-        #         points=achievement.points,
-        #         author=request.user,
-        #     )
-
-        #     playgroup_achievement.save()
-
-        #     return Response({
-        #         'achievementId': playgroup_achievement.id,
-        #         'status': status.HTTP_200_OK,
-        #     })
-        # else:
-        #     print(serializer.error_messages)
-        #     return create_error_response(serializer.error_messages)
+            return Response({
+                'personId': person.id,
+                'status': status.HTTP_200_OK,
+            })
+        else:
+            print(serializer.error_messages)
+            return create_error_response(serializer.error_messages)

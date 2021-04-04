@@ -9,4 +9,9 @@ urlpatterns = [
         api_views.persons.as_view(),
         name='persons'
     ),
+    path(
+        'v1/person/<str:person_id>',
+        api_views.person.as_view(),
+        name='person'
+    ),
 ]
