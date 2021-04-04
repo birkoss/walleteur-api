@@ -7,3 +7,9 @@ class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = ['id', 'name', 'balance']
+
+
+class TransactionWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = ['reason', 'amount']

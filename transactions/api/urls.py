@@ -14,4 +14,9 @@ urlpatterns = [
         api_views.person.as_view(),
         name='person'
     ),
+    path(
+        'v1/person/<str:person_id>/transactions',
+        api_views.person_transactions.as_view(),
+        name='person_transactions'
+    ),
 ]

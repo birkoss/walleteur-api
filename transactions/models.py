@@ -23,4 +23,4 @@ class Transaction(TimeStampedModel, UUIDModel, models.Model):
     )
 
     def __str__(self):
-        return self.amount + "$ -> " + self.person.name
+        return str(self.amount) + "$ -> " + self.person.name
