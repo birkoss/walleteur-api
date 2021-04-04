@@ -72,14 +72,7 @@ class person_transactions(APIView):
         if serializer.is_valid():
             transaction = serializer.save(person=person)
 
-            # Update person balance
-            total_transactions = Transaction.objects.filter(
-                person=person
-            ).aggregate(Sum('amount'))
-            newBalance = total_transactions['amount__sum']
-
-            person.balance = newBalance
-            person.save()
+            person.update_balance()
 
             return Response({
                 'transactionId': transaction.id,
@@ -88,6 +81,28 @@ class person_transactions(APIView):
         else:
             print(serializer.error_messages)
             return create_error_response(serializer.error_messages)
+
+
+class transaction(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, transaction_id, format=None):
+        transaction = Transaction.objects.filter(
+            person__user=request.user, id=transaction_id
+        ).first()
+
+        if transaction is None:
+            return create_error_response('invalid_user')
+
+        person = transaction.person
+
+        transaction.delete()
+
+        person.update_balance()
+
+        return Response({
+        }, status=status.HTTP_200_OK)
 
 
 class transactions(APIView):

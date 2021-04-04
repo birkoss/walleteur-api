@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 from django.db.models.fields.related import ForeignKey
 
 from core.models import TimeStampedModel, UUIDModel
@@ -13,6 +14,16 @@ class Person(TimeStampedModel, UUIDModel, models.Model):
 
     def __str__(self):
         return self.name
+
+    def update_balance(self):
+        # Update person balance
+        total_transactions = Transaction.objects.filter(
+            person=self
+        ).aggregate(Sum('amount'))
+        newBalance = total_transactions['amount__sum']
+
+        self.balance = newBalance
+        self.save()
 
 
 class Transaction(TimeStampedModel, UUIDModel, models.Model):
