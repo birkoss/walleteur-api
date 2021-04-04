@@ -10,7 +10,9 @@ from ..models import Person, Transaction
 
 from core.helpers import create_error_response
 
-from .serializers import PersonSerializer, TransactionWriteSerializer
+from .serializers import (
+    PersonSerializer, TransactionReadSerializer, TransactionWriteSerializer
+)
 
 
 class person(APIView):
@@ -86,3 +88,21 @@ class person_transactions(APIView):
         else:
             print(serializer.error_messages)
             return create_error_response(serializer.error_messages)
+
+
+class transactions(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        transactions = Transaction.objects.filter(
+            person__user=request.user
+        ).order_by('-date_added')
+
+        serializer = TransactionReadSerializer(
+            instance=transactions, many=True
+        )
+
+        return Response({
+            'transactions': serializer.data,
+        }, status=status.HTTP_200_OK)

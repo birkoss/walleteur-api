@@ -19,4 +19,9 @@ urlpatterns = [
         api_views.person_transactions.as_view(),
         name='person_transactions'
     ),
+    path(
+        'v1/transactions',
+        api_views.transactions.as_view(),
+        name='transactions'
+    ),
 ]

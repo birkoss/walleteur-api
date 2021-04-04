@@ -13,3 +13,11 @@ class TransactionWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = ['reason', 'amount']
+
+
+class TransactionReadSerializer(serializers.ModelSerializer):
+    person = PersonSerializer(read_only=True)
+
+    class Meta:
+        model = Transaction
+        fields = ['id', 'reason', 'amount', 'person', 'date_added']
