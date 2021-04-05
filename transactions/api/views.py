@@ -1,5 +1,6 @@
-from django.db.models import Sum
-from django.core.exceptions import ValidationError
+from datetime import timedelta
+
+from django.db.models import Count, Sum
 from django.utils import timezone
 
 from rest_framework import status, authentication, permissions
@@ -40,8 +41,21 @@ class persons(APIView):
 
         serializer = PersonSerializer(instance=persons, many=True)
 
+        weekly_stats = []
+
+        transactions = Transaction.objects.filter(
+            date_added__gte=timezone.now()-timedelta(days=7)
+        ).values('person__id').annotate(Sum('amount'), Count('amount'))
+        for transaction in transactions:
+            weekly_stats.append({
+                'personId': transaction['person__id'],
+                'amount': transaction['amount__sum'],
+                'total': transaction['amount__count'],
+            })
+
         return Response({
             'persons': serializer.data,
+            'weeklyStats': weekly_stats,
         }, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
