@@ -1,7 +1,7 @@
 from .base import *
 
 
-ALLOWED_HOSTS = ['achievements.birkoss.com']
+ALLOWED_HOSTS = ['api.walleteur.app']
 
 DEBUG = True
 
@@ -20,5 +20,5 @@ DATABASES = {
 }
 
 
-STATIC_URL = 'https://achievementscdn.birkoss.com/assets/api/'
-STATIC_ROOT = '/home/achievements/domains/achievementscdn.birkoss.com/public_html/assets/api/'
+STATIC_URL = 'https://walleteur.app/assets/api/'
+STATIC_ROOT = '/home/walleteur/domains/walleteur.app/public_html/assets/api/'
