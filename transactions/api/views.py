@@ -44,6 +44,7 @@ class persons(APIView):
         weekly_stats = []
 
         transactions = Transaction.objects.filter(
+            person__user=request.user,
             date_added__gte=timezone.now()-timedelta(days=7)
         ).values('person__id').annotate(Sum('amount'), Count('amount'))
         for transaction in transactions:
