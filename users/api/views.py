@@ -43,7 +43,6 @@ class registerUser(APIView):
             user = User.objects.create_user(
                 serializer.data['email'],
                 request.data['password'],
-                date_validated=timezone.now(),
             )
 
             token = Token.objects.get(user=user)
