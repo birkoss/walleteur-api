@@ -20,9 +20,33 @@ class person(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, person_id, format=None):
+        person = Person.objects.filter(user=request.user, id=person_id).first()
+        if person is None:
+            return create_error_response('invalid_user')
+
+        serializer = PersonSerializer(instance=person)
+
+        weekly_stats = []
+
+        transactions = Transaction.objects.filter(
+            person=person,
+            date_added__gte=timezone.now()-timedelta(days=7)
+        ).values('person__id').annotate(Sum('amount'), Count('amount'))
+        for transaction in transactions:
+            weekly_stats.append({
+                'personId': transaction['person__id'],
+                'amount': transaction['amount__sum'],
+                'total': transaction['amount__count'],
+            })
+
+        return Response({
+            'person': serializer.data,
+            'weeklyStats': weekly_stats,
+        }, status=status.HTTP_200_OK)
+
     def delete(self, request, person_id, format=None):
         person = Person.objects.filter(user=request.user, id=person_id).first()
-
         if person is None:
             return create_error_response('invalid_user')
 
