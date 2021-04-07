@@ -78,6 +78,23 @@ class person_transactions(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, person_id, format=None):
+        person = Person.objects.filter(user=request.user, id=person_id).first()
+        if person is None:
+            return create_error_response('invalid_user')
+
+        transactions = Transaction.objects.filter(
+            person=person
+        ).order_by('-date_added')
+
+        serializer = TransactionReadSerializer(
+            instance=transactions, many=True
+        )
+
+        return Response({
+            'transactions': serializer.data,
+        }, status=status.HTTP_200_OK)
+
     def post(self, request, person_id, format=None):
         person = Person.objects.filter(user=request.user, id=person_id).first()
         if person is None:
