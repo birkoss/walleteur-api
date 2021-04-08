@@ -22,6 +22,9 @@ class Person(TimeStampedModel, UUIDModel, models.Model):
         ).aggregate(Sum('amount'))
         newBalance = total_transactions['amount__sum']
 
+        if newBalance is None:
+            newBalance = 0
+
         self.balance = newBalance
         self.save()
 
