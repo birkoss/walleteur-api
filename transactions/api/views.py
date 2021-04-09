@@ -61,7 +61,7 @@ class persons(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        persons = Person.objects.filter(user=request.user)
+        persons = Person.objects.filter(user=request.user).order_by('-name')
 
         serializer = PersonSerializer(instance=persons, many=True)
 
