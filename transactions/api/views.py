@@ -12,7 +12,8 @@ from ..models import Person, Transaction
 from core.helpers import create_error_response
 
 from .serializers import (
-    PersonSerializer, TransactionReadSerializer, TransactionWriteSerializer
+    PersonSerializer, TransactionReadSerializer,
+    ScheduledTransactionWriteSerializer, TransactionWriteSerializer
 )
 
 
@@ -61,7 +62,7 @@ class persons(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        persons = Person.objects.filter(user=request.user).order_by('+name')
+        persons = Person.objects.filter(user=request.user).order_by('name')
 
         serializer = PersonSerializer(instance=persons, many=True)
 
@@ -136,6 +137,31 @@ class person_transactions(APIView):
             })
         else:
             print(serializer.error_messages)
+            return create_error_response(serializer.error_messages)
+
+
+class person_scheduled_transactions(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, person_id, format=None):
+        person = Person.objects.filter(user=request.user, id=person_id).first()
+        if person is None:
+            return create_error_response('invalid_user')
+
+        print(request.data)
+
+        serializer = ScheduledTransactionWriteSerializer(data=request.data)
+        if serializer.is_valid():
+            print("valid!!")
+            scheduled_transaction = serializer.save(person=person, type='S')
+
+            return Response({
+                'scheduledTransactionId': scheduled_transaction.id,
+                'status': status.HTTP_200_OK,
+            })
+        else:
+            print(serializer)
             return create_error_response(serializer.error_messages)
 
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import Person, Transaction
+from ..models import Person, ScheduledTransaction, Transaction
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -13,6 +13,12 @@ class TransactionWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = ['reason', 'amount']
+
+
+class ScheduledTransactionWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScheduledTransaction
+        fields = ['reason', 'amount', 'date_next_due']
 
 
 class TransactionReadSerializer(serializers.ModelSerializer):

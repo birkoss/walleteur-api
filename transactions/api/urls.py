@@ -20,6 +20,11 @@ urlpatterns = [
         name='person_transactions'
     ),
     path(
+        'v1/person/<str:person_id>/scheduledTransactions',
+        api_views.person_scheduled_transactions.as_view(),
+        name='person_scheduled_transactions'
+    ),
+    path(
         'v1/transactions',
         api_views.transactions.as_view(),
         name='transactions'
