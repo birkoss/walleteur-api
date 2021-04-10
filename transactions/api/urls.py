@@ -34,4 +34,9 @@ urlpatterns = [
         api_views.transaction.as_view(),
         name='transaction'
     ),
+    path(
+        'v1/scheduledTransaction/<str:transaction_id>',
+        api_views.scheduled_transaction.as_view(),
+        name='scheduled_transaction'
+    ),
 ]

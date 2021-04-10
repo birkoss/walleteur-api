@@ -7,12 +7,13 @@ from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ..models import Person, Transaction
+from ..models import Person, ScheduledTransaction, Transaction
 
 from core.helpers import create_error_response
 
 from .serializers import (
     PersonSerializer, TransactionReadSerializer,
+    ScheduledTransactionSerializer,
     ScheduledTransactionWriteSerializer, TransactionWriteSerializer
 )
 
@@ -144,6 +145,23 @@ class person_scheduled_transactions(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, person_id, format=None):
+        person = Person.objects.filter(user=request.user, id=person_id).first()
+        if person is None:
+            return create_error_response('invalid_user')
+
+        transactions = ScheduledTransaction.objects.filter(
+            person=person
+        ).order_by('-date_added')
+
+        serializer = ScheduledTransactionSerializer(
+            instance=transactions, many=True
+        )
+
+        return Response({
+            'transactions': serializer.data,
+        }, status=status.HTTP_200_OK)
+
     def post(self, request, person_id, format=None):
         person = Person.objects.filter(user=request.user, id=person_id).first()
         if person is None:
@@ -163,6 +181,24 @@ class person_scheduled_transactions(APIView):
         else:
             print(serializer)
             return create_error_response(serializer.error_messages)
+
+
+class scheduled_transaction(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, transaction_id, format=None):
+        transaction = ScheduledTransaction.objects.filter(
+            person__user=request.user, id=transaction_id
+        ).first()
+
+        if transaction is None:
+            return create_error_response('invalid_user')
+
+        transaction.delete()
+
+        return Response({
+        }, status=status.HTTP_200_OK)
 
 
 class transaction(APIView):

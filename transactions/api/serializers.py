@@ -15,10 +15,18 @@ class TransactionWriteSerializer(serializers.ModelSerializer):
         fields = ['reason', 'amount']
 
 
+class ScheduledTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScheduledTransaction
+        fields = ['id', 'reason', 'amount', 'date_next_due',
+                  'interval_amount', 'interval_type']
+
+
 class ScheduledTransactionWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduledTransaction
-        fields = ['reason', 'amount', 'date_next_due']
+        fields = ['reason', 'amount', 'date_next_due',
+                  'interval_amount', 'interval_type']
 
 
 class TransactionReadSerializer(serializers.ModelSerializer):
@@ -26,4 +34,4 @@ class TransactionReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ['id', 'reason', 'amount', 'person', 'date_added']
+        fields = ['id', 'reason', 'amount', 'person', 'date_added', 'type']
