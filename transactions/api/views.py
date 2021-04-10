@@ -145,8 +145,6 @@ class person_scheduled_transactions(APIView):
         if person is None:
             return create_error_response('invalid_user')
 
-        print(request.data)
-
         serializer = ScheduledTransactionWriteSerializer(data=request.data)
         if serializer.is_valid():
             print("valid!!")
