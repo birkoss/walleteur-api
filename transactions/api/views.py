@@ -64,7 +64,6 @@ class persons(APIView):
         }, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-
         serializer = PersonWriteSerializer(data=request.data)
         if serializer.is_valid():
             person = serializer.save(user=request.user, balance=0)
@@ -74,7 +73,6 @@ class persons(APIView):
                 'status': status.HTTP_200_OK,
             })
         else:
-            print(serializer.error_messages)
             return create_error_response(serializer.error_messages)
 
 
@@ -115,7 +113,6 @@ class person_transactions(APIView):
                 'status': status.HTTP_200_OK,
             })
         else:
-            print(serializer.error_messages)
             return create_error_response(serializer.error_messages)
 
 
@@ -147,7 +144,6 @@ class person_scheduled_transactions(APIView):
 
         serializer = ScheduledTransactionWriteSerializer(data=request.data)
         if serializer.is_valid():
-            print("valid!!")
             scheduled_transaction = serializer.save(person=person)
 
             return Response({
@@ -155,7 +151,6 @@ class person_scheduled_transactions(APIView):
                 'status': status.HTTP_200_OK,
             })
         else:
-            print(serializer)
             return create_error_response(serializer.error_messages)
 
 
