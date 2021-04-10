@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.utils import timezone
 
 from rest_framework import status, authentication, permissions
@@ -23,28 +23,18 @@ class person(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, person_id, format=None):
-        person = Person.objects.filter(user=request.user, id=person_id).first()
+        person = get_persons(
+            user=request.user, id=person_id
+        ).first()
         if person is None:
             return create_error_response('invalid_user')
 
         serializer = PersonSerializer(instance=person)
 
-        weekly_stats = []
-
-        transactions = Transaction.objects.filter(
-            person=person,
-            date_added__gte=timezone.now()-timedelta(days=7)
-        ).values('person__id').annotate(Sum('amount'), Count('amount'))
-        for transaction in transactions:
-            weekly_stats.append({
-                'personId': transaction['person__id'],
-                'amount': transaction['amount__sum'],
-                'total': transaction['amount__count'],
-            })
-
         return Response({
             'person': serializer.data,
-            'weeklyStats': weekly_stats,
+            # @TODO: Remove when the next update is online
+            'weeklyStats': {},
         }, status=status.HTTP_200_OK)
 
     def delete(self, request, person_id, format=None):
@@ -63,26 +53,14 @@ class persons(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        persons = Person.objects.filter(user=request.user).order_by('name')
+        persons = get_persons(user=request.user)
 
         serializer = PersonSerializer(instance=persons, many=True)
 
-        weekly_stats = []
-
-        transactions = Transaction.objects.filter(
-            person__user=request.user,
-            date_added__gte=timezone.now()-timedelta(days=7)
-        ).values('person__id').annotate(Sum('amount'), Count('amount'))
-        for transaction in transactions:
-            weekly_stats.append({
-                'personId': transaction['person__id'],
-                'amount': transaction['amount__sum'],
-                'total': transaction['amount__count'],
-            })
-
         return Response({
             'persons': serializer.data,
-            'weeklyStats': weekly_stats,
+            # @TODO: Remove when the next update is online
+            'weeklyStats': {},
         }, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -239,3 +217,16 @@ class transactions(APIView):
         return Response({
             'transactions': serializer.data,
         }, status=status.HTTP_200_OK)
+
+
+def get_persons(**kwargs):
+    filter_last_week = Q(
+        transaction__date_added__gte=timezone.now()-timedelta(days=7)
+    )
+
+    return Person.objects.filter(
+        **kwargs
+    ).annotate(
+        weekly_amount=Sum('transaction__amount', filter=filter_last_week),
+        weekly_total=Count('transaction__amount', filter=filter_last_week)
+    ).order_by('name')

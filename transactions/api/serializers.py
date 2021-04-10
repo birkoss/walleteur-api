@@ -4,9 +4,12 @@ from ..models import Person, ScheduledTransaction, Transaction
 
 
 class PersonSerializer(serializers.ModelSerializer):
+    weekly_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    weekly_total = serializers.IntegerField()
+
     class Meta:
         model = Person
-        fields = ['id', 'name', 'balance']
+        fields = ['id', 'name', 'balance', 'weekly_amount', 'weekly_total']
 
 
 class TransactionWriteSerializer(serializers.ModelSerializer):
