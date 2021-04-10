@@ -1,3 +1,5 @@
+import calendar
+import datetime
 import itertools
 
 from django.db import models
@@ -5,6 +7,14 @@ from django.utils.text import slugify
 
 from rest_framework import status
 from rest_framework.response import Response
+
+
+def add_months(date, months):
+    month = date.month - 1 + months
+    year = date.year + month // 12
+    month = month % 12 + 1
+    day = min(date.day, calendar.monthrange(year, month)[1])
+    return datetime.date(year, month, day)
 
 
 def create_error_response(message):

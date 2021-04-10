@@ -154,7 +154,7 @@ class person_scheduled_transactions(APIView):
         serializer = ScheduledTransactionWriteSerializer(data=request.data)
         if serializer.is_valid():
             print("valid!!")
-            scheduled_transaction = serializer.save(person=person, type='S')
+            scheduled_transaction = serializer.save(person=person)
 
             return Response({
                 'scheduledTransactionId': scheduled_transaction.id,

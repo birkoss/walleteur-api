@@ -70,6 +70,6 @@ class ScheduledTransaction(TransactionData):
         return (
             str(self.amount) + "$ -> " + self.person.name
             + " (every " + str(self.interval_amount) + " "
-            + ("day(s)" if self.interval_type == "daily" else "week(s)")
+            + ("day(s)" if self.interval_type == "daily" else "month(s)")
             + ")"
         )
