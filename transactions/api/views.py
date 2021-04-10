@@ -13,7 +13,7 @@ from core.helpers import create_error_response
 
 from .serializers import (
     PersonSerializer, TransactionReadSerializer,
-    ScheduledTransactionSerializer,
+    ScheduledTransactionSerializer, PersonWriteSerializer,
     ScheduledTransactionWriteSerializer, TransactionWriteSerializer
 )
 
@@ -65,7 +65,7 @@ class persons(APIView):
 
     def post(self, request, format=None):
 
-        serializer = PersonSerializer(data=request.data)
+        serializer = PersonWriteSerializer(data=request.data)
         if serializer.is_valid():
             person = serializer.save(user=request.user, balance=0)
 

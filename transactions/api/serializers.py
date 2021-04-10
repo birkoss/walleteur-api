@@ -12,6 +12,12 @@ class PersonSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'balance', 'weekly_amount', 'weekly_total']
 
 
+class PersonWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        fields = ['id', 'name', 'balance']
+
+
 class TransactionWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
@@ -33,7 +39,7 @@ class ScheduledTransactionWriteSerializer(serializers.ModelSerializer):
 
 
 class TransactionReadSerializer(serializers.ModelSerializer):
-    person = PersonSerializer(read_only=True)
+    person = PersonWriteSerializer(read_only=True)
 
     class Meta:
         model = Transaction
