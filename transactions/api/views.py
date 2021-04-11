@@ -37,6 +37,26 @@ class person(APIView):
             'weeklyStats': {},
         }, status=status.HTTP_200_OK)
 
+    def patch(self, request, person_id, format=None):
+        person = get_persons(
+            user=request.user, id=person_id
+        ).first()
+        if person is None:
+            return create_error_response('invalid_user')
+
+        serializer = PersonWriteSerializer(data=request.data)
+        if serializer.is_valid():
+            person.name = request.data['name']
+            person.save()
+
+            return Response({
+                'person': serializer.data,
+            }, status=status.HTTP_200_OK)
+
+        return Response({
+            'error': serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, person_id, format=None):
         person = Person.objects.filter(user=request.user, id=person_id).first()
         if person is None:
